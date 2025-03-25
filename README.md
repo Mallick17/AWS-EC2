@@ -58,19 +58,33 @@ General purpose instances offer a balanced mix of compute, memory, and networkin
 
 - **Fixed Performance (M5 Instances):**
   M5 instances, powered by Intel Xeon Platinum 8175 processors, are designed for demanding workloads. Specifications include:
+  
+<details>
+   <summary>Specifications Include</summary>
+
   | Instance Type | vCPUs | Memory (GiB) | Network Performance |
   |---------------|-------|--------------|---------------------|
   | m5.large      | 2     | 8            | Up to 10 Gbps       |
   | m5.xlarge     | 4     | 16           | Up to 10 Gbps       |
   | m5.2xlarge    | 8     | 32           | Up to 10 Gbps       |
+
+</details>
+
   Network specifications from the attachment show baseline bandwidth starting at 0.75 Gbps for m5.large, bursting to 10 Gbps, highlighting their capability for general applications.
 
 - **Burstable Performance (T3 Instances):**
   T3 instances, part of the burstable family, provide a baseline CPU performance with burst capability, managed by CPU credits. They are cost-effective for applications with variable CPU needs, such as development environments. Specifications include:
+
+<details>
+   <summary>Specifications Include</summary>
+
   | Instance Type | vCPUs | Memory (GiB) | Baseline CPU Performance |
   |---------------|-------|--------------|--------------------------|
   | t3.medium     | 2     | 4            | 20%                      |
   | t3.large      | 2     | 8            | 30%                      |
+
+</details>
+
   The attachment confirms T3 uses Intel Skylake P-8175, with no accelerators, focusing on flexibility.
 
 - **Flex Instances (M7i-flex, C7i-flex):**
@@ -78,36 +92,64 @@ General purpose instances offer a balanced mix of compute, memory, and networkin
 
 ##### Compute Optimized Instances
 Compute optimized instances, such as C5, are tailored for compute-intensive tasks like batch processing and media transcoding, leveraging high-performance processors. Specifications include:
+
+<details>
+   <summary>Specifications Include</summary>
+
   | Instance Type | vCPUs | Memory (GiB) | Network Performance |
   |---------------|-------|--------------|---------------------|
   | c5.large      | 2     | 4            | Up to 10 Gbps       |
   | c5.xlarge     | 4     | 8            | Up to 10 Gbps       |
   | c5.2xlarge    | 8     | 16           | Up to 10 Gbps       |
+
+</details>
+
   Powered by Intel Xeon Platinum 8124M, these instances ensure consistent performance, with no burstable options, as confirmed by the attachment.
 
 ##### Memory Optimized Instances
 Memory optimized instances, like R5, are designed for in-memory processing, suitable for databases and real-time analytics. Specifications include:
+
+<details>
+   <summary>Specifications Include</summary>
+
   | Instance Type | vCPUs | Memory (GiB) | Network Performance |
   |---------------|-------|--------------|---------------------|
   | r5.large      | 2     | 16           | Up to 10 Gbps       |
   | r5.xlarge     | 4     | 32           | Up to 10 Gbps       |
   | r5.2xlarge    | 8     | 64           | Up to 10 Gbps       |
+
+</details>
+
   Using Intel Xeon Platinum 8175, R5 instances offer high memory capacity, with no accelerators, focusing on memory-intensive tasks.
 
 ##### Storage Optimized Instances
 Storage optimized instances, such as I3, are for workloads requiring high I/O, like NoSQL databases. Specifications include:
+
+<details>
+   <summary>Specifications Include</summary>
+
   | Instance Type | vCPUs | Memory (GiB) | Storage (GB) | Network Performance |
   |---------------|-------|--------------|--------------|---------------------|
   | i3.large      | 2     | 15.25        | 475 NVMe SSD | Up to 10 Gbps       |
   | i3.xlarge     | 4     | 30.5         | 950 NVMe SSD | Up to 10 Gbps       |
+
+</details>
+
   These instances provide NVMe SSD storage, optimized for low-latency, high-throughput operations.
 
 ##### Accelerated Computing Instances
 Accelerated computing instances, like P3, use GPUs for tasks like machine learning. Specifications include:
+
+<details>
+   <summary>Specifications Include</summary>
+
   | Instance Type | vCPUs | Memory (GiB) | GPUs | GPU Memory (GiB) | Network Performance |
   |---------------|-------|--------------|------|------------------|---------------------|
   | p3.2xlarge    | 8     | 61           | 1    | 16               | 10 Gbps             |
   | p3.8xlarge    | 32    | 244          | 4    | 64               | 25 Gbps             |
+
+</details>
+
   Powered by NVIDIA Tesla V100, these are ideal for high-performance computing, with significant GPU memory.
 
 #### Additional Features and Considerations
