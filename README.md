@@ -43,74 +43,6 @@
 ### Introduction to EC2 Instance Types
 When launching an EC2 instance, the instance type you select shapes the host computer's hardware, offering varying levels of compute, memory, storage, and networking. This choice is crucial for matching your application's needs, ensuring optimal performance and cost efficiency.
 
-### Instance Type Categories and Examples
-AWS categorizes EC2 instances to fit diverse use cases. Below are key categories with examples and specifications:
-
-#### General Purpose Instances
-These provide a balance of resources, ideal for web servers and code repositories. They include fixed performance (e.g., M5) and burstable performance (e.g., T3) instances, as well as flex instances (e.g., M7i-flex).
-
-- **M5 Instances (Fixed Performance):**
-  | Instance Type | vCPUs | Memory (GiB) | Network Performance |
-  |---------------|-------|--------------|---------------------|
-  | m5.large      | 2     | 8            | Up to 10 Gbps       |
-  | m5.xlarge     | 4     | 16           | Up to 10 Gbps       |
-  | m5.2xlarge    | 8     | 32           | Up to 10 Gbps       |
-
-- **T3 Instances (Burstable Performance):**
-  | Instance Type | vCPUs | Memory (GiB) | Baseline CPU Performance |
-  |---------------|-------|--------------|--------------------------|
-  | t3.medium     | 2     | 4            | 20%                      |
-  | t3.large      | 2     | 8            | 30%                      |
-
-- **Flex Instances (e.g., M7i-flex):** Offer a balance of resources, with the ability to burst up to 100% CPU for 95% of a 24-hour period, suitable for general workloads.
-
-#### Compute Optimized Instances
-Designed for compute-intensive tasks like batch processing and scientific modeling, these instances, such as C5, provide high-performance processors.
-
-- **C5 Instances:**
-  | Instance Type | vCPUs | Memory (GiB) | Network Performance |
-  |---------------|-------|--------------|---------------------|
-  | c5.large      | 2     | 4            | Up to 10 Gbps       |
-  | c5.xlarge     | 4     | 8            | Up to 10 Gbps       |
-  | c5.2xlarge    | 8     | 16           | Up to 10 Gbps       |
-
-#### Memory Optimized Instances
-These are for workloads processing large datasets in memory, like databases and real-time big data, with examples like R5 offering high memory capacity.
-
-- **R5 Instances:**
-  | Instance Type | vCPUs | Memory (GiB) | Network Performance |
-  |---------------|-------|--------------|---------------------|
-  | r5.large      | 2     | 16           | Up to 10 Gbps       |
-  | r5.xlarge     | 4     | 32           | Up to 10 Gbps       |
-  | r5.2xlarge    | 8     | 64           | Up to 10 Gbps       |
-
-#### Storage Optimized Instances
-Optimized for high I/O access to large datasets, suitable for NoSQL databases and data warehousing, with examples like I3 offering NVMe SSD storage.
-
-- **I3 Instances:**
-  | Instance Type | vCPUs | Memory (GiB) | Storage (GB) | Network Performance |
-  |---------------|-------|--------------|--------------|---------------------|
-  | i3.large      | 2     | 15.25        | 475 NVMe SSD | Up to 10 Gbps       |
-  | i3.xlarge     | 4     | 30.5         | 950 NVMe SSD | Up to 10 Gbps       |
-
-#### Accelerated Computing Instances
-These use hardware accelerators like GPUs for graphics processing and machine learning, with examples like P3 offering NVIDIA Tesla V100 GPUs.
-
-- **P3 Instances:**
-  | Instance Type | vCPUs | Memory (GiB) | GPUs | GPU Memory (GiB) | Network Performance |
-  |---------------|-------|--------------|------|------------------|---------------------|
-  | p3.2xlarge    | 8     | 61           | 1    | 16               | 10 Gbps             |
-  | p3.8xlarge    | 32    | 244          | 4    | 64               | 25 Gbps             |
-
-### Additional Details
-- **Burstable Performance:** Managed by CPU credits, earned below baseline and spent when bursting, ideal for variable CPU usage.
-- **Flex Instances:** Like M7i-flex and C7i-flex, balance cost and performance, bursting up to 100% CPU for 95% of 24 hours.
-
----
-
-<details>
-   <summary>Comprehensive Analysis of AWS EC2 Instance Types</summary>
-
 ### Comprehensive Analysis of AWS EC2 Instance Types
 
 This detailed report expands on the key points, providing a thorough exploration of AWS EC2 instance types, their categories, and specifications, tailored for a DevOps intern beginning with AWS EC2. The analysis is based on provided documentation and additional resources, ensuring a complete understanding for practical application.
@@ -177,8 +109,6 @@ Accelerated computing instances, like P3, use GPUs for tasks like machine learni
   | p3.2xlarge    | 8     | 61           | 1    | 16               | 10 Gbps             |
   | p3.8xlarge    | 32    | 244          | 4    | 64               | 25 Gbps             |
   Powered by NVIDIA Tesla V100, these are ideal for high-performance computing, with significant GPU memory.
-
-</details>
 
 #### Additional Features and Considerations
 - **Burstable Performance Management:** Governed by CPU credits, earned below baseline and spent when bursting, as detailed in the provided text, making T3 instances cost-effective for variable workloads.
