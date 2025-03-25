@@ -18,6 +18,8 @@
 
 ![image](https://github.com/user-attachments/assets/89921cb0-335c-4738-b2ed-c079b300c6f1)
 
+---
+
 ### Features of Amazon EC2  
 
 1. **Instances** – Virtual servers that run applications in the cloud.  
@@ -35,6 +37,8 @@
 7. **Security Groups** – A virtual firewall that allows you to specify the protocols, ports, and source IP ranges that can reach your instances, and the destination IP ranges to which your instances can connect.  
 
 8. **PCI DSS Compliance** – Supports the secure processing, storage, and transmission of credit card data.
+
+---
 
 ### Introduction to EC2 Instance Types
 When launching an EC2 instance, the instance type you select shapes the host computer's hardware, offering varying levels of compute, memory, storage, and networking. This choice is crucial for matching your application's needs, ensuring optimal performance and cost efficiency.
@@ -179,3 +183,4 @@ Accelerated computing instances, like P3, use GPUs for tasks like machine learni
 #### Regional Availability and Practical Implications
 The provided text lists instance types available in regions like US East (N. Virginia), with variations by region, affecting availability. For instance, M5 is widely available, but checking regional support is crucial for deployment planning.
 
+---
