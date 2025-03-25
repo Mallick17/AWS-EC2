@@ -43,8 +43,6 @@
 # Introduction & Comprehensive Analysis of AWS EC2 Instance Types
 When launching an EC2 instance, the instance type you select shapes the host computer's hardware, offering varying levels of compute, memory, storage, and networking. This choice is crucial for matching your application's needs, ensuring optimal performance and cost efficiency.
 
-This detailed report expands on the key points, providing a thorough exploration of AWS EC2 instance types, their categories, and specifications, tailored for a DevOps intern beginning with AWS EC2. The analysis is based on provided documentation and additional resources, ensuring a complete understanding for practical application.
-
 AWS EC2 (Elastic Compute Cloud) instance types define the hardware capabilities of virtual servers, including compute, memory, storage, and networking. Each instance type is grouped into families based on resource balance, catering to diverse application needs. The choice impacts performance, cost, and scalability, making it essential for DevOps professionals to understand these options.
 
 EC2 instances are categorized to align with specific workloads, as outlined below, with examples and specifications drawn from the provided data.
