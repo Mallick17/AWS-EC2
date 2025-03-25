@@ -108,7 +108,10 @@ These use hardware accelerators like GPUs for graphics processing and machine le
 
 ---
 
-### Comprehensive Analysis of AWS EC2 Instance Types for DevOps Interns
+<details>
+   <summary>Comprehensive Analysis of AWS EC2 Instance Types</summary>
+
+### Comprehensive Analysis of AWS EC2 Instance Types
 
 This detailed report expands on the key points, providing a thorough exploration of AWS EC2 instance types, their categories, and specifications, tailored for a DevOps intern beginning with AWS EC2. The analysis is based on provided documentation and additional resources, ensuring a complete understanding for practical application.
 
@@ -174,6 +177,8 @@ Accelerated computing instances, like P3, use GPUs for tasks like machine learni
   | p3.2xlarge    | 8     | 61           | 1    | 16               | 10 Gbps             |
   | p3.8xlarge    | 32    | 244          | 4    | 64               | 25 Gbps             |
   Powered by NVIDIA Tesla V100, these are ideal for high-performance computing, with significant GPU memory.
+
+</details>
 
 #### Additional Features and Considerations
 - **Burstable Performance Management:** Governed by CPU credits, earned below baseline and spent when bursting, as detailed in the provided text, making T3 instances cost-effective for variable workloads.
