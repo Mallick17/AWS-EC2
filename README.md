@@ -1,4 +1,4 @@
-<img width="1520" height="754" alt="image" src="https://github.com/user-attachments/assets/8d3f8d84-9e1b-40e8-85d4-bf28505911fc" /># EC2 - Elastic Cloud Compute
+# EC2 - Elastic Cloud Compute
 1. **What is Amazon EC2?**  
    - A cloud-based service that provides virtual servers on demand.  
    - Helps reduce hardware costs and speeds up application development and deployment.  
@@ -443,3 +443,4 @@ aws ec2 modify-instance-metadata-options \
 - **Set hop limit to 2 only for containerized environments; otherwise, keep at 1.**
 - **Monitor metadata accesses for audits and incident response.**
 - **Enable tags in metadata for improved automation if tagging policy is standardized.**
+<img width="1520" height="754" alt="image" src="https://github.com/user-attachments/assets/8d3f8d84-9e1b-40e8-85d4-bf28505911fc" />
