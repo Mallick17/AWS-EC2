@@ -250,13 +250,6 @@ aws ec2 modify-instance-metadata-options \
 
 ## 📝 Explanation: EC2 User Data Script — What It Does and Why It Matters
 
-Here's a clear breakdown of the **code provided** that’s placed inside the **EC2 user data script**, followed by:
-
-- ✅ What happens **if you include** the script
-- ⚠️ What happens **if you don’t include** the script
-- 🎯 Why each line is important
-- 🚨 Security and operational implications
-
 ### 📦 The Full Script (Clean Format):
 
 ```bash
@@ -359,7 +352,7 @@ aws ec2 associate-address --instance-id "$INSTANCE_ID" \
 | No auto-mapping of EIP                              | Manual steps needed; may cause downtime or broken routing.                                         |
 | No bootstrap automation                             | Instance is just online—not traffic-ready.                                                         |
 
-### 🎯 Why This Script Matters
+### Why This Script Matters
 
 This script ensures that:
 - Your EC2 instance **automatically takes control of a specific Elastic IP**.
@@ -368,10 +361,10 @@ This script ensures that:
 
 This is especially useful in:
 
-- ✅ **Auto-scaling groups** where EIPs must be reassigned
-- ✅ **Failover scenarios** (high availability setups)
-- ✅ **Blue-Green deployments**
-- ✅ **Cost-saving ECS clusters** where instances replace each other dynamically
+- **Auto-scaling groups** where EIPs must be reassigned
+- **Failover scenarios** (high availability setups)
+- **Blue-Green deployments**
+- **Cost-saving ECS clusters** where instances replace each other dynamically
 
 ### 🛡 Security & Best Practices
 
