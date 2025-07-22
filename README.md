@@ -117,11 +117,11 @@ If you're using:
 
 # AWS Instance Metadata Service v2 (IMDSv2): Comprehensive Guide
 
-## 1. What is Instance Metadata Service (IMDS)?
+### 1. What is Instance Metadata Service (IMDS)?
 
 The **Instance Metadata Service (IMDS)** allows applications on AWS EC2 instances to access information about the instance environment—such as ID, networking details, attached roles, user data, and more—via HTTP requests to a special local endpoint (`169.254.169.254`). This is essential for automation, bootstrapping, and dynamically managing cloud infrastructure.
 
-## 2. IMDSv1 vs. IMDSv2: Key Differences
+### 2. IMDSv1 vs. IMDSv2: Key Differences
 
 | Feature                   | IMDSv1 (Legacy)              | IMDSv2 (Modern, Secure)          |
 |---------------------------|------------------------------|----------------------------------|
@@ -131,9 +131,9 @@ The **Instance Metadata Service (IMDS)** allows applications on AWS EC2 instance
 | Backwards Compatibility   | Legacy (no code changes)     | Scripts must be token-aware      |
 | Recommended?              | No (deprecated/insecure)     | Yes (default, enforced by AWS)   |
 
-## 3. IMDSv2: How It Works
+### 3. IMDSv2: How It Works
 
-### Session Token Mechanism
+#### Session Token Mechanism
 
 IMDSv2 introduces a **two-step, session-oriented process**:
 
@@ -158,7 +158,7 @@ IMDSv2 introduces a **two-step, session-oriented process**:
 
 **Note:** Each request must supply the valid token; scripts must be updated from legacy GETs to request, store, and use the token appropriately.
 
-## 4. What Metadata Can You Access?
+### 4. What Metadata Can You Access?
 
 With proper IMDSv2 session token use, you can securely access:
 
@@ -170,7 +170,7 @@ With proper IMDSv2 session token use, you can securely access:
 - **Storage:** Volume attachments, device mappings
 - **Other:** Placement/group info, scheduled events
 
-### Example: Fetch Instance ID
+#### Example: Fetch Instance ID
 
 **Legacy (IMDSv1):**
 ```sh
@@ -185,9 +185,9 @@ curl -H "X-aws-ec2-metadata-token: $TOKEN" \
   http://169.254.169.254/latest/meta-data/instance-id
 ```
 
-## 5. Configuring IMDSv2 on EC2 Instances
+### 5. Configuring IMDSv2 on EC2 Instances
 
-### Key Configuration Options
+#### Key Configuration Options
 
 | Setting                       | Recommendation                          | Description                                  |
 |-------------------------------|-----------------------------------------|----------------------------------------------|
@@ -205,19 +205,19 @@ aws ec2 modify-instance-metadata-options \
   --http-endpoint enabled
 ```
 
-## 6. Use Cases and Security Guidance
+### 6. Use Cases and Security Guidance
 
-### When to Use IMDSv2
+#### When to Use IMDSv2
 
 - **Highly recommended for all modern cloud workloads:** Prevents common attacks such as SSRF and metadata credential theft.
 - **Required for container workloads** (e.g., ECS/EKS) with hop limit increases.
 
-### When to Restrict or Disable
+#### When to Restrict or Disable
 
 - **If no in-instance software requires metadata** and your setup mandates minimal exposure, the metadata endpoint can be disabled.
 - **When legacy tooling is present,** migrate or update all accesses to use the IMDSv2 session-token workflow.
 
-## 7. Pros & Cons
+### 7. Pros & Cons
 
 | Pros                                           | Cons                          |
 |------------------------------------------------|-------------------------------|
@@ -226,25 +226,169 @@ aws ec2 modify-instance-metadata-options \
 | Tag availability for self-aware resources      | Migration must be planned/tested            |
 | Required for modern AWS best-practices         | None (unless old patterns remain) |
 
-## 8. Migration Checklist
+### 8. Migration Checklist
 
 1. **Audit all scripts/applications accessing metadata** – Update them to use the token-fetch pattern.
 2. **Enforce IMDSv2** (`http-tokens=required`) only after all tooling is compliant.
 3. **Test instance launch and configuration** with IMDSv2 required; verify application functionality.
 4. **Optionally enable tags in metadata** for greater automation potential.
 
-## 9. Summary Table: IMDSv1 vs. IMDSv2 Request Flow
+### 9. Summary Table: IMDSv1 vs. IMDSv2 Request Flow
 
 | Step                        | IMDSv1 Command                                 | IMDSv2 Command                                   |
 |-----------------------------|------------------------------------------------|--------------------------------------------------|
 | Metadata call               | `curl http://169.254.169.254/latest/meta-data/instance-id` | `curl -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/instance-id` |
 | Token retrieval             | _(none)_                                       | `TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds:21600")` |
 
-## 10. Best Practices
+### 10. Best Practices
 
 - **Require IMDSv2 on all workloads for maximum security.**
 - **Update all metadata access patterns to request and use session tokens.**
 - **Set hop limit to 2 only for containerized environments; otherwise, keep at 1.**
 - **Monitor metadata accesses for audits and incident response.**
 - **Enable tags in metadata for improved automation if tagging policy is standardized.**
-<img width="1520" height="754" alt="image" src="https://github.com/user-attachments/assets/8d3f8d84-9e1b-40e8-85d4-bf28505911fc" />
+
+## 📝 Explanation: EC2 User Data Script — What It Does and Why It Matters
+
+Here's a clear breakdown of the **code provided** that’s placed inside the **EC2 user data script**, followed by:
+
+- ✅ What happens **if you include** the script
+- ⚠️ What happens **if you don’t include** the script
+- 🎯 Why each line is important
+- 🚨 Security and operational implications
+
+## 📦 The Full Script (Clean Format):
+
+```bash
+yum install -y wget awscli
+
+mkdir ~/.aws
+touch ~/.aws/credentials
+chmod -R 777 ~/.aws
+
+echo "[default]" > ~/.aws/credentials
+echo "region = ap-south-1" >> ~/.aws/credentials
+
+aws ec2 disassociate-address --public-ip 13.126.81.250
+
+TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" \
+  -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
+
+INSTANCE_ID=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" \
+  http://169.254.169.254/latest/meta-data/instance-id)
+
+echo "$INSTANCE_ID"
+
+aws ec2 associate-address --instance-id "$INSTANCE_ID" \
+  --allocation-id eipalloc-0ab5b6799a11dc742
+```
+
+## 🔍 Line-by-Line Breakdown
+
+### 1. `yum install -y wget awscli`
+- **Purpose:** Installs `wget` and the AWS CLI so the instance can run AWS commands (like `associate-address`).
+- **If missing:** The rest of the script will fail due to missing dependencies.
+
+### 2. Configuring AWS Credentials (region only, without keys):
+
+```bash
+mkdir ~/.aws
+touch ~/.aws/credentials
+chmod -R 777 ~/.aws
+echo "[default]" > ~/.aws/credentials
+echo "region = ap-south-1" >> ~/.aws/credentials
+```
+
+- **Purpose:** Creates a minimal AWS CLI config with the default region set.
+- 🛡 **Important:** No access keys are stored—assumes IAM role is attached to the EC2 instance.
+- **If missing:** Some AWS CLI commands might fail if the region must be explicitly provided and isn't set.
+
+### 3. Disassociate static public IP:
+
+```bash
+aws ec2 disassociate-address --public-ip 13.126.81.250
+```
+
+- **Purpose:** Releases the current association of a static Elastic IP (EIP) from **another instance** (or possibly the same one).
+- Useful when reassigning a shared EIP to a new EC2 (e.g., in blue-green deployments or failover scenarios).
+- **If missing:** The associate call later might fail due to EIP still being attached elsewhere.
+
+### 4. IMDSv2 — Securely get instance metadata:
+
+```bash
+TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" \
+  -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
+INSTANCE_ID=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" \
+  http://169.254.169.254/latest/meta-data/instance-id)
+```
+
+- **Purpose:** Securely fetch the current instance’s ID using **IMDSv2** (token-based).
+- Compliant with AWS best practices and avoids legacy IMDSv1 vulnerabilities.
+- **If missing:** Instance ID won’t be fetched—or worse, if you use IMDSv1 style but IMDSv2 is enforced (as you are doing), the script FAILS with 401 error.
+
+### 5. Associate EIP with this instance:
+
+```bash
+aws ec2 associate-address --instance-id "$INSTANCE_ID" \
+  --allocation-id eipalloc-0ab5b6799a11dc742
+```
+
+- **Purpose:** Assigns the specific Elastic IP to the current instance.
+- Used for restoring public access, migrating endpoints, or switching production traffic quickly during deployment.
+- **If missing:** Your instance will not be reachable via the expected static IP. This can break DNS, traffic routing, or fail safe cutover.
+
+## ✅ What Happens If You **Do Add** This Code to User Data
+
+| Outcome                             | Benefit                                                                 |
+|-------------------------------------|-------------------------------------------------------------------------|
+| 🛰 AWS CLI Installed                | Required for interacting with EC2 APIs from inside the instance.       |
+| 📦 Region Configured               | Ensures CLI doesn't throw missing region errors.                        |
+| 🔌 EIP Reassignment Automated      | Fully automates public IP handover to the new instance.                |
+| 🧾 IMDSv2 Token Usage Compliant    | Compatible with your **‘IMDSv2-only’** instance metadata config.        |
+| 🚀 Zero-Touch Bootstrapping        | Instance is fully operational with correct public IP on launch.        |
+
+## ⚠️ What If You **Do Not Add** This Code?
+
+| Missing Action                                      | Effect / Problem                                                                                  |
+|-----------------------------------------------------|----------------------------------------------------------------------------------------------------|
+| No CLI or region config                             | AWS commands fail—script breaks.                                                                   |
+| No disassociate or associate                        | Your instance won't receive the correct public IP.                                                 |
+| No token request                                    | Fails if instance metadata is set to **IMDSv2 only**, which you’ve already enforced.              |
+| No auto-mapping of EIP                              | Manual steps needed; may cause downtime or broken routing.                                         |
+| No bootstrap automation                             | Instance is just online—not traffic-ready.                                                         |
+
+## 🎯 Why This Script Matters
+
+This script ensures that:
+- Your EC2 instance **automatically takes control of a specific Elastic IP**.
+- All metadata calls are made **securely using IMDSv2** tokens.
+- The instance is **production-ready immediately after launch.**
+
+This is especially useful in:
+
+- ✅ **Auto-scaling groups** where EIPs must be reassigned
+- ✅ **Failover scenarios** (high availability setups)
+- ✅ **Blue-Green deployments**
+- ✅ **Cost-saving ECS clusters** where instances replace each other dynamically
+
+## 🛡 Security & Best Practices
+
+- ✔ Uses **IMDSv2-compliant** metadata requests — protects against SSRF and unauthorized access.
+- ✔ Uses **IAM roles**, not hard-coded credentials — secure and maintainable.
+- ⚠️ Consider **restricting permission** for `ec2:AssociateAddress` to fixed EIP & instance-role.
+- ⚠️ Be cautious with `chmod -R 777 ~/.aws` — fast but permissive. Refine if working with secure environments.
+
+## ✔️ Summary
+
+| With Script                        | Without Script                          |
+|-----------------------------------|-----------------------------------------|
+| ✅ Instance auto-bootstraps EIP   | ❌ Manual reassignment needed           |
+| ✅ Supports IMDSv2 securely       | ❌ Metadata access will fail (HTTP 401) |
+| ✅ CLI works with set config      | ❌ Commands fail if region not set      |
+| ✅ Ideal for automation/DevOps    | ❌ Fails cloud-ready reliability goals |
+
+**✅ Recommendation:** YES — Add this script if:
+- You require the instance to auto-configure itself with a static EIP
+- You're using IMDSv2-only (as enforced by your settings)
+- You want zero-touch, secure bootstrapping and remote access availability
+
