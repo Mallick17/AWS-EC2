@@ -257,7 +257,7 @@ Here's a clear breakdown of the **code provided** that’s placed inside the **E
 - 🎯 Why each line is important
 - 🚨 Security and operational implications
 
-## 📦 The Full Script (Clean Format):
+### 📦 The Full Script (Clean Format):
 
 ```bash
 yum install -y wget awscli
@@ -283,13 +283,15 @@ aws ec2 associate-address --instance-id "$INSTANCE_ID" \
   --allocation-id eipalloc-0ab5b6799a11dc742
 ```
 
-## 🔍 Line-by-Line Breakdown
+---
 
-### 1. `yum install -y wget awscli`
+### 🔍 Line-by-Line Breakdown
+
+#### 1. `yum install -y wget awscli`
 - **Purpose:** Installs `wget` and the AWS CLI so the instance can run AWS commands (like `associate-address`).
 - **If missing:** The rest of the script will fail due to missing dependencies.
 
-### 2. Configuring AWS Credentials (region only, without keys):
+#### 2. Configuring AWS Credentials (region only, without keys):
 
 ```bash
 mkdir ~/.aws
@@ -303,7 +305,7 @@ echo "region = ap-south-1" >> ~/.aws/credentials
 - 🛡 **Important:** No access keys are stored—assumes IAM role is attached to the EC2 instance.
 - **If missing:** Some AWS CLI commands might fail if the region must be explicitly provided and isn't set.
 
-### 3. Disassociate static public IP:
+#### 3. Disassociate static public IP:
 
 ```bash
 aws ec2 disassociate-address --public-ip 13.126.81.250
@@ -313,7 +315,7 @@ aws ec2 disassociate-address --public-ip 13.126.81.250
 - Useful when reassigning a shared EIP to a new EC2 (e.g., in blue-green deployments or failover scenarios).
 - **If missing:** The associate call later might fail due to EIP still being attached elsewhere.
 
-### 4. IMDSv2 — Securely get instance metadata:
+#### 4. IMDSv2 — Securely get instance metadata:
 
 ```bash
 TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" \
@@ -326,7 +328,7 @@ INSTANCE_ID=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" \
 - Compliant with AWS best practices and avoids legacy IMDSv1 vulnerabilities.
 - **If missing:** Instance ID won’t be fetched—or worse, if you use IMDSv1 style but IMDSv2 is enforced (as you are doing), the script FAILS with 401 error.
 
-### 5. Associate EIP with this instance:
+#### 5. Associate EIP with this instance:
 
 ```bash
 aws ec2 associate-address --instance-id "$INSTANCE_ID" \
@@ -337,7 +339,7 @@ aws ec2 associate-address --instance-id "$INSTANCE_ID" \
 - Used for restoring public access, migrating endpoints, or switching production traffic quickly during deployment.
 - **If missing:** Your instance will not be reachable via the expected static IP. This can break DNS, traffic routing, or fail safe cutover.
 
-## ✅ What Happens If You **Do Add** This Code to User Data
+### ✅ What Happens If You **Do Add** This Code to User Data
 
 | Outcome                             | Benefit                                                                 |
 |-------------------------------------|-------------------------------------------------------------------------|
@@ -347,7 +349,7 @@ aws ec2 associate-address --instance-id "$INSTANCE_ID" \
 | 🧾 IMDSv2 Token Usage Compliant    | Compatible with your **‘IMDSv2-only’** instance metadata config.        |
 | 🚀 Zero-Touch Bootstrapping        | Instance is fully operational with correct public IP on launch.        |
 
-## ⚠️ What If You **Do Not Add** This Code?
+### ⚠️ What If You **Do Not Add** This Code?
 
 | Missing Action                                      | Effect / Problem                                                                                  |
 |-----------------------------------------------------|----------------------------------------------------------------------------------------------------|
@@ -357,7 +359,7 @@ aws ec2 associate-address --instance-id "$INSTANCE_ID" \
 | No auto-mapping of EIP                              | Manual steps needed; may cause downtime or broken routing.                                         |
 | No bootstrap automation                             | Instance is just online—not traffic-ready.                                                         |
 
-## 🎯 Why This Script Matters
+### 🎯 Why This Script Matters
 
 This script ensures that:
 - Your EC2 instance **automatically takes control of a specific Elastic IP**.
@@ -371,14 +373,14 @@ This is especially useful in:
 - ✅ **Blue-Green deployments**
 - ✅ **Cost-saving ECS clusters** where instances replace each other dynamically
 
-## 🛡 Security & Best Practices
+### 🛡 Security & Best Practices
 
 - ✔ Uses **IMDSv2-compliant** metadata requests — protects against SSRF and unauthorized access.
 - ✔ Uses **IAM roles**, not hard-coded credentials — secure and maintainable.
 - ⚠️ Consider **restricting permission** for `ec2:AssociateAddress` to fixed EIP & instance-role.
 - ⚠️ Be cautious with `chmod -R 777 ~/.aws` — fast but permissive. Refine if working with secure environments.
 
-## ✔️ Summary
+### ✔️ Summary
 
 | With Script                        | Without Script                          |
 |-----------------------------------|-----------------------------------------|
@@ -392,3 +394,55 @@ This is especially useful in:
 - You're using IMDSv2-only (as enforced by your settings)
 - You want zero-touch, secure bootstrapping and remote access availability
 
+---
+
+## Effects of Enforcing IMDSv2 Without Bootstrapping Scripts
+
+When you **enable IMDSv2** but do **not add startup scripts** (such as for fetching tokens, auto-mapping Elastic IPs, or automated initialization), your instance will behave differently depending on your operational needs. Below is a breakdown addressing the scenarios and whether the given script is required if you don’t use Elastic IPs.
+
+### 1. What Happens With IMDSv2 Enabled but No Scripts
+
+#### Advantages
+
+- **Improved Security**
+  - IMDSv2 enforces token-based metadata access, blocking classic SSRF attacks and helping prevent unauthorized credential leaks.
+- **Lower Attack Surface**
+  - By requiring a session token, it’s much harder for malicious code inside your instance to fetch metadata.
+
+#### Disadvantages
+
+- **No Automated Bootstrapping**
+  - Without user data scripts, your instance will *not* auto-configure itself (e.g., joining clusters, registering with orchestration tools, setting special tags).
+- **No EIP Management**
+  - If Elastic IP assignment is not automated, manual steps are required for failover, migration, or recovery scenarios.
+- **Metadata Access Issues**
+  - Any legacy scripts, agents, or services that weren’t updated for IMDSv2 (i.e., still using direct GET requests without a token) will fail to access instance metadata, potentially breaking automation, monitoring, or security tools.
+
+### 2. When You **Don’t Use Elastic IPs**
+
+If your deployment **does not require assigning or reassigning Elastic IPs**:
+
+- **No Need for EIP-Related Script Sections**
+  - You can safely omit all commands relating to disassociating or associating Elastic IPs. These commands are specifically for scenarios where your instance must be reachable through a consistent public IP, such as blue-green deployments or hot failover.
+- **What Remains Essential**
+  - You only need user data scripts if your application requires some kind of custom bootstrapping (e.g., auto-registration, config initialization). If your instance can come up “vanilla” and doesn’t require immediate automation beyond what’s already on the image/AMI, you do not need the script.
+- **Security and Compliance**
+  - Still ensure any scripts, tools, or third-party software accessing instance metadata have been updated to use the IMDSv2 token approach.
+
+### 3. Summary Table: With and Without the Script
+
+| Scenario                                                | If Script Is Added                                                      | If Script Is Not Added                                  |
+|---------------------------------------------------------|------------------------------------------------------------------------|---------------------------------------------------------|
+| IMDSv2 enforcement only                                 | Tools/scripts using IMDSv2 will work if token logic is present.         | Legacy metadata calls fail (401 error); better security.|
+| EIP management needed                                   | Instance auto-assigns/reassigns Elastic IP.                             | Requires manual EIP change; risk of downtime.           |
+| EIP management **not** needed (as in your case)         | EIP logic in script is redundant/unnecessary.                           | No negative impact; script not required.                |
+| Bootstrapping or registration (non-EIP) required        | Runs automatically at launch.                                           | Must be handled manually or via AMI image.              |
+| Security posture                                        | Improved, as IMDSv2 blocks legacy access and script runs securely.      | Security still improved, but less automation.           |
+
+### 4. Takeaway
+
+- **If you do not use Elastic IPs** and have no other custom bootstrapping requirements, you do **not need** the script shown earlier.
+- **If you do need automatic registration, config, or integration,** use a script—but ensure all IMDSv2 calls include a session token.
+- **Enforcing IMDSv2** alone is a strong security move, but requires revising any code or tools that attempt to access instance metadata directly.
+
+---
