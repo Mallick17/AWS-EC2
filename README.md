@@ -131,9 +131,9 @@ aws ec2 modify-instance-metadata-options \
 - **Monitor metadata accesses for audits and incident response.**
 - **Enable tags in metadata for improved automation if tagging policy is standardized.**
 
-## 📝 Explanation: EC2 User Data Script — What It Does and Why It Matters
+## Explanation: EC2 User Data Script — What It Does and Why It Matters
 
-### 📦 The Full Script (Clean Format):
+### The Full Script (Clean Format):
 
 ```bash
 yum install -y wget awscli
@@ -145,18 +145,18 @@ chmod -R 777 ~/.aws
 echo "[default]" > ~/.aws/credentials
 echo "region = ap-south-1" >> ~/.aws/credentials
 
-aws ec2 disassociate-address --public-ip 13.126.81.250
+aws ec2 disassociate-address --public-ip 00.000.00.000
 
-TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" \
+TOKEN=$(curl -X PUT "http://000.000.000.000/latest/api/token" \
   -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
 
 INSTANCE_ID=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" \
-  http://169.254.169.254/latest/meta-data/instance-id)
+  http://00.000.00.000/latest/meta-data/instance-id)
 
 echo "$INSTANCE_ID"
 
 aws ec2 associate-address --instance-id "$INSTANCE_ID" \
-  --allocation-id eipalloc-0ab5b6799a11dc742
+  --allocation-id eipalloc-1ab5b65821100000
 ```
 
 ---
@@ -184,7 +184,7 @@ echo "region = ap-south-1" >> ~/.aws/credentials
 #### 3. Disassociate static public IP:
 
 ```bash
-aws ec2 disassociate-address --public-ip 13.126.81.250
+aws ec2 disassociate-address --public-ip 00.000.00.000
 ```
 
 - **Purpose:** Releases the current association of a static Elastic IP (EIP) from **another instance** (or possibly the same one).
@@ -194,10 +194,10 @@ aws ec2 disassociate-address --public-ip 13.126.81.250
 #### 4. IMDSv2 — Securely get instance metadata:
 
 ```bash
-TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" \
+TOKEN=$(curl -X PUT "http://000.000.000.000/latest/api/token" \
   -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
 INSTANCE_ID=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" \
-  http://169.254.169.254/latest/meta-data/instance-id)
+  http://000.000.000.000/latest/meta-data/instance-id)
 ```
 
 - **Purpose:** Securely fetch the current instance’s ID using **IMDSv2** (token-based).
@@ -208,7 +208,7 @@ INSTANCE_ID=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" \
 
 ```bash
 aws ec2 associate-address --instance-id "$INSTANCE_ID" \
-  --allocation-id eipalloc-0ab5b6799a11dc742
+  --allocation-id eipalloc-1ab5b65821100000
 ```
 
 - **Purpose:** Assigns the specific Elastic IP to the current instance.
