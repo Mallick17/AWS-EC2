@@ -50,4 +50,19 @@ Normally, when you launch an EC2 instance, AWS just picks a physical server some
 - **"I need my servers to talk to each other REALLY fast"** — think a supercomputing cluster where milliseconds of network delay ruin the math.
 - **"I need my servers to NOT fail together"** — if they're all secretly running on the same physical rack, one power supply dying could take down every one of them at once, defeating the whole point of having multiple servers.
 
-A placement group is you telling AWS "hey, for this group of instances, use this specific strategy for deciding where to physically put them." The diagram above shows the three classic strategies in action — same rack, separate racks, or grouped-but-separated racks.
+### Level 1: The four strategies, in plain English
+
+**Cluster — "sit together, shoulder to shoulder"**
+All instances get packed as physically close together as possible, in a single Availability Zone, ideally on the same network switch. Think of it as seating your whole team at one lunch table so they can pass notes instantly. You get the lowest possible network latency and highest throughput between instances. The tradeoff: if that one "table" (rack) has a problem, everyone sitting there is affected together.
+Best for: HPC (high-performance computing), tightly-coupled scientific simulations, MPI workloads, anything where node-to-node chatter is the bottleneck.
+
+**Spread — "everyone gets their own room, no exceptions"**
+Each instance is forced onto genuinely separate hardware — different racks, different power, different network gear. It's the opposite philosophy from Cluster: instead of speed, you're buying maximum isolation for a small number of critical instances. Because AWS has to find truly distinct hardware for each one, this strategy is capped at 7 instances per Availability Zone (rack-level spread).
+Best for: A handful of must-not-fail-together nodes — e.g., your 3-5 domain controllers, or the leader nodes of a small critical cluster.
+
+**Partition — "small isolated neighborhoods, not one house each"**
+This is the middle ground, designed for big distributed systems with dozens or hundreds of nodes. Instances are grouped into logical "partitions" (you choose how many, up to 7 per AZ), and each partition sits on its own racks with its own power and networking — but multiple instances can share hardware within the same partition. AWS even tells your application which instance is in which partition, so topology-aware software (like Hadoop or Cassandra) can be smart about where it puts replicas.
+Best for: HDFS, HBase, Cassandra, Kafka — big data and distributed database systems that already understand the concept of "don't put all replicas of the same data in one place."
+
+**Precision Time — the newest strategy (added mid-2026)**
+This one is genuinely new and worth flagging since it's easy to miss in older tutorials: AWS added a fourth strategy called **precision-time**, which places your instances on hardware with direct access to a high-precision clock source, giving microsecond-accurate time sync via the enhanced Amazon Time Sync Service. It's aimed at things like financial trading systems and distributed databases that need to order transactions by timestamp with extreme accuracy. You can even attach a precision-time group as a "parent" to a cluster placement group, so you get low latency and precise clocks together. It currently requires newer (Gen7+) instance families.
