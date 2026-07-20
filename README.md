@@ -39,3 +39,15 @@
 8. **PCI DSS Compliance** – Supports the secure processing, storage, and transmission of credit card data.
 
 ---
+
+## EC2 Placement Groups
+Placement groups are AWS's way of letting you tell EC2 "control where you physically put my servers" instead of just accepting wherever AWS decides. Here's the same concept, layered from complete beginner to what you need to know in a production interview or a real deployment.
+
+### Level 0: The problem it solves
+
+Normally, when you launch an EC2 instance, AWS just picks a physical server somewhere in its data center for you — you have zero say in it. Most of the time that's fine. But two very different problems come up:
+
+- **"I need my servers to talk to each other REALLY fast"** — think a supercomputing cluster where milliseconds of network delay ruin the math.
+- **"I need my servers to NOT fail together"** — if they're all secretly running on the same physical rack, one power supply dying could take down every one of them at once, defeating the whole point of having multiple servers.
+
+A placement group is you telling AWS "hey, for this group of instances, use this specific strategy for deciding where to physically put them." The diagram above shows the three classic strategies in action — same rack, separate racks, or grouped-but-separated racks.
