@@ -66,3 +66,41 @@ Best for: HDFS, HBase, Cassandra, Kafka — big data and distributed database sy
 
 **Precision Time — the newest strategy (added mid-2026)**
 This one is genuinely new and worth flagging since it's easy to miss in older tutorials: AWS added a fourth strategy called **precision-time**, which places your instances on hardware with direct access to a high-precision clock source, giving microsecond-accurate time sync via the enhanced Amazon Time Sync Service. It's aimed at things like financial trading systems and distributed databases that need to order transactions by timestamp with extreme accuracy. You can even attach a precision-time group as a "parent" to a cluster placement group, so you get low latency and precise clocks together. It currently requires newer (Gen7+) instance families.
+
+
+### Level 2: The rules you'll actually hit
+
+| | Cluster | Spread | Partition | Precision time |
+|---|---|---|---|---|
+| Scope | Single AZ | Can span AZs in a region | Can span AZs in a region | Depends on hardware |
+| Max size | Limited by account quota | 7 instances per AZ | 7 partitions per AZ (unlimited instances) | Limited by supported hardware |
+| Dedicated instances/hosts | Allowed | Not allowed | Limited to 2 partitions | N/A |
+| Typical use | HPC, low latency | A few critical, isolated nodes | Big distributed systems | Trading systems, distributed DBs needing exact clock order |
+| Cost | Free | Free | Free | Free |
+
+A few extra things worth knowing:
+- An instance can only be in **one** placement group at a time.
+- You can't merge two placement groups together.
+- Creating a placement group costs nothing — you only pay for the instances as usual.
+
+### Level 3: Creating one (so it's not just theory)
+
+Through the console: EC2 Dashboard → Network & Security → Placement Groups → Create placement group → pick a strategy → (for Partition, set the number of partitions; for Spread, choose Rack or Host level).
+
+Via CLI:
+
+```bash
+# Cluster
+aws ec2 create-placement-group --group-name my-cluster --strategy cluster
+
+# Partition, 5 partitions
+aws ec2 create-placement-group --group-name HDFS-Group-A --strategy partition --partition-count 5
+
+# Spread
+aws ec2 create-placement-group --group-name my-spread --strategy spread
+
+# Precision time (newest strategy)
+aws ec2 create-placement-group --group-name my-ptp-group --strategy precision-time
+```
+
+Then launch instances with `--placement GroupName=my-cluster`.
