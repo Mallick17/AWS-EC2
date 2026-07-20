@@ -104,3 +104,35 @@ aws ec2 create-placement-group --group-name my-ptp-group --strategy precision-ti
 ```
 
 Then launch instances with `--placement GroupName=my-cluster`.
+
+### Level 4: Professional-level gotchas
+
+This is the stuff that separates "I read the docs once" from "I've actually run this in production":
+
+**"Insufficient capacity" errors are a real, known risk with Cluster placement groups.** Because AWS has to find enough contiguous hardware capacity in one spot, launches can fail with `InsufficientInstanceCapacity` — especially as the group grows or you mix instance types. AWS's own advice: launch all the instances you need in **one single launch request**, and keep them all the **same instance type**. Adding instances one at a time later, or mixing types, meaningfully raises your odds of hitting this error.
+
+**If you do hit that error on an existing group, stopping and starting all the instances can fix it** — it lets EC2 try to re-migrate everything onto hardware that has room for the full set, then you retry the launch.
+
+**For guaranteed capacity, pair Cluster placement groups with On-Demand Capacity Reservations** created directly inside the placement group. This is the standard pattern for HPC workloads where you absolutely cannot afford a failed launch mid-job.
+
+**You *can* move an existing instance into, out of, or between placement groups** — a detail a lot of older guides get wrong by saying you can't. The catch: the instance must be **stopped** first.
+```bash
+aws ec2 modify-instance-placement --instance-id i-0123456789 --group-name MySpreadGroup
+```
+Passing an empty string as the group name removes it from any placement group.
+
+**Enhanced networking matters for Cluster placement groups.** To actually get the low-latency, high-bandwidth benefit, your instances generally need enhanced networking (ENA) enabled — the placement group alone doesn't guarantee it if the instance type/config doesn't support it.
+
+**Spread and Partition placement groups are region-wide constructs, not AZ-locked** — a single one can span multiple Availability Zones in the same region, which Cluster cannot do (it's strictly one AZ).
+
+**Auto Scaling Groups can use placement groups too**, but be aware that scaling a Cluster placement group aggressively is exactly the scenario most likely to trigger capacity errors — Partition or Spread tend to be more forgiving for elastic workloads.
+
+### Quick mental shortcut
+
+- Need raw speed between nodes → **Cluster**
+- Need a small number of things to absolutely never fail together → **Spread**
+- Running a big distributed data system → **Partition**
+- Need microsecond-accurate clocks across nodes → **Precision time**
+- Not sure, or it's a normal web app → **don't use a placement group at all** — EC2's default placement already spreads things out reasonably to avoid correlated failures.
+
+A placement group is you telling AWS "hey, for this group of instances, use this specific strategy for deciding where to physically put them." The diagram above shows the three classic strategies in action — same rack, separate racks, or grouped-but-separated racks.
